@@ -24,9 +24,22 @@ venv() {
     
     case "$1" in
         "create")
-            virtualenv --prompt='$(__venv_prompt)'  "$VENV_DIR/$2";;
+	    if [[ ! -z "$2" ]]; then
+		env="$2"
+		shift
+		shift
+                virtualenv $@ --no-site-packages --distribute --prompt='$(__venv_prompt)'  "$VENV_DIR/$env"
+            	source "$VENV_DIR/$env/bin/activate"
+	    fi;;
         "destroy")
-            rm -rf "$VENV_DIR/$2";;
+	    if [[ ! -z "$2" ]]; then
+		if [[ $VIRTUAL_ENV = $VENV_DIR/$2 ]]; then
+			deactivate
+		fi
+            	rm -rf "$VENV_DIR/$2"
+	    else
+		echo "nope"
+	    fi;;
         "use")
             source "$VENV_DIR/$2/bin/activate";;
         "ls")
@@ -49,7 +62,7 @@ __venv_completion() {
 
     case "${prev}" in
         destroy)
-            COMPREPLY=( $(compgen -W $(venv ls) -- ${cur}) );;
+            COMPREPLY=( $(compgen -W "${venvs}" -- ${cur}) );;
         use)
             COMPREPLY=( $(compgen -W "${venvs}" -- ${cur}) );;
         *)
