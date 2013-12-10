@@ -21,6 +21,15 @@ venv() {
     then
         mkdir -p "${VENV_DIR}"
     fi
+    if [ ! -n "${GOENV_DIR}" ] 
+    then
+        GOENV_DIR="${HOME}/.goenv"
+    fi
+    if [ ! -d $GOENV_DIR ]
+    then
+        mkdir -p "${GOENV_DIR}"
+    fi
+    
     
     case "$1" in
         "create")
@@ -29,7 +38,8 @@ venv() {
 		shift
 		shift
                 virtualenv $@ --no-site-packages --distribute --prompt='$(__venv_prompt)'  "$VENV_DIR/$env"
-            	source "$VENV_DIR/$env/bin/activate"
+                mkdir "$GOENV_DIR/$env"
+            	venv use $env
 	    fi;;
         "destroy")
 	    if [[ ! -z "$2" ]]; then
@@ -37,11 +47,13 @@ venv() {
 			deactivate
 		fi
             	rm -rf "$VENV_DIR/$2"
+            	rm -rf "$GOENV_DIR/$2"
 	    else
 		echo "nope"
 	    fi;;
         "use")
-            source "$VENV_DIR/$2/bin/activate";;
+            source "$VENV_DIR/$2/bin/activate"
+            export GOPATH="$VENV_DIR/$2";;
         "ls")
             ls "$VENV_DIR";;
         *)
@@ -72,3 +84,4 @@ __venv_completion() {
 
 
 complete -F __venv_completion venv
+
