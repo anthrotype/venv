@@ -52,8 +52,12 @@ venv() {
 		echo "nope"
 	    fi;;
         "use")
-            source "$VENV_DIR/$2/bin/activate"
-            export GOPATH="$VENV_DIR/$2";;
+           source "$VENV_DIR/$2/bin/activate"
+	   GOPATH="$GOENV_DIR/$2"
+	   PATH="$GOENV_DIR/$2/bin:$PATH"
+	   export GOPATH
+	   export PATH;;
+ 
         "ls")
             ls "$VENV_DIR";;
         *)
